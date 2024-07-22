@@ -1,23 +1,4 @@
-const margin = { top: 70, right: 30, bottom: 40, left: 80 };
-const width = 1200 - margin.left - margin.right;
-const height = 500 - margin.top - margin.bottom;
-
-const x = d3.scaleLinear()
-  .range([0, width]);
-
-const y = d3.scaleLinear()
-  .range([height, 0]);
-
-  const svg = d3.select("#chart-container")
-  .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform", `translate(${margin.left},${margin.top})`);
-
-// data initialization
-let dataset =[];
-// fetch data from the e
+// fetch data from the excel sheet
 async function fetchAndParseExcel(url) {
 
     try {
@@ -33,16 +14,50 @@ async function fetchAndParseExcel(url) {
       return jsonData;
     } catch (error) {
       console.error('Error fetching or parsing the Excel file:', error);
+      return [];
     }
   }
   
-  const excelUrl = 'timelineTask.xlsx';
+
+// Function to adjust overlapping points
+function adjustOverlappingPoints(data, offset) {
+  const positionMap = new Map();
+  const adjustedData = [];
+
+  data.forEach((d, i) => {
+      const key = `${d.x},${d.y}`;
+      let dx = 0;
+      let dy = 0;
+
+      if (positionMap.has(key)) {
+          const count = positionMap.get(key);
+          dx = (count % 5) * offset; // Adjusting x position
+          dy = Math.floor(count / 5) * offset; // Adjusting y position
+          positionMap.set(key, count + 1);
+      } else {
+          positionMap.set(key, 1);
+      }
+
+      adjustedData.push({
+          ...d,
+          x1: d.x + dx,
+          y1: d.y + dy
+      });
+  });
+
+  return adjustedData;
+}
+
+const excelUrl = 'timelineTask.xlsx';
   
 // function to call the fetch function
 async function initializeData() {
     try {
-        dataset = await fetchAndParseExcel(excelUrl);
+        const dataset = await fetchAndParseExcel(excelUrl);
         console.log('Data initialized:', dataset);
+        const offset = 0.04;
+        const adjustedData = adjustOverlappingPoints(dataset, offset);
+        plotScatterPlot(adjustedData)
     } catch (error) {
         console.error('Error fetching or parsing the Excel file:', error);
     }
@@ -50,37 +65,33 @@ async function initializeData() {
 
 initializeData();
 
-console.log(dataset);
+function plotScatterPlot(dataset){
+  const plot = Plot.plot({
+    inset: 10,
+        grid: true,
+        width: 800,
+        height: 500,
+        x: { label: "X Axis" },
+        y: { label: "Y Axis" },
+        marks: [
+            Plot.line(dataset, {x: "x1", y: "y1", curve: "catmull-rom", marker: true,stroke:"#666"}),
+            Plot.dot(dataset, {
+                x: 'x1',
+                y: 'y1',
+                r: 4,
+                title: d => 
+                    `Timestamp: ${d.Timeline}\nTitle: ${d["Title for resource"]?d["Title for resource"]:"-"}\nURL: ${d.href?d.href:"-"}\nType: ${d.type}`,
+                fill: d => d.type === "resource" ? "blue" :d.type === "quiz"? "green":"orange",
+            }),
+            Plot.text(dataset, {
+                x: 'x1',
+                y: 'y1',
+                text: d => d.type,
+                dy: -10,
+                fill: d => d.type === "resource" ? "blue" :d.type === "quiz"? "green":"orange",
+            })
+        ]
+  })
 
-// Define the x and y domains
-
-x.domain(d3.extent(dataset, d => d.x));
-y.domain([0, d3.max(dataset, d => d.y)]);
-
-// Add the x-axis
-
-svg.append("g")
-  .attr("transform", `translate(0,${height})`)
-  .call(d3.axisBottom(x)); 
-
-
-// Add the y-axis
-
-svg.append("g")
-  .call(d3.axisLeft(y))
-
-// Create the line generator
-
-const line = d3.line()
-  .x(d => x(d.x))
-  .y(d => y(d.y));
-
-// Add the line path to the SVG element
-
-svg.append("path")
-  .datum(dataset)
-  .attr("fill", "none")
-  .attr("stroke", "steelblue")
-  .attr("stroke-width", 1)
-  .attr("d", line);
-  
+  document.getElementById('chart-container').appendChild(plot);
+}
