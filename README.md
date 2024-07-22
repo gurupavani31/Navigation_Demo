@@ -1,55 +1,44 @@
 # Navigation Demo
 
-## Overview
-
-The Navigation Demo project is a web-based visualization tool that reads data from an Excel file and displays it as a scatter plot with additional features like tooltips and color coding based on data type. The plot shows the relationship between data points and provides additional context via interactive elements.
+This project demonstrates a navigation chart using D3.js and data from an Excel sheet.
 
 ## Features
 
-- **Data Visualization**: Displays data from an Excel sheet as a scatter plot with lines connecting points.
-- **Tooltips**: Hover over data points to view detailed information.
-- **Color Coding**: Data points are color-coded based on their type.
-- **Overlap Adjustment**: Automatically adjusts overlapping points for better visibility.
+- Fetch data from an Excel file.
+- Adjust overlapping points to avoid visual clutter.
+- Plot a scatter plot with animated points and lines.
+- Display tooltips on hover.
 
-## Technologies Used
+## Requirements
 
-- **D3.js**: JavaScript library for manipulating documents based on data.
-- **Plot**: Plotting library from ObservableHQ for creating interactive charts.
-- **xlsx**: Library for parsing Excel files.
+- D3.js
+- XLSX.js
 
-## Setup
+## Installation
 
-1. **Include Libraries**: Ensure the necessary libraries are included in your HTML file:
-    ```html
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@observablehq/plot@0.2.2/dist/plot.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+1. Clone the repository:
+    ```sh
+    git clone https://github.com/gurupavani31/Navigation_Demo.git
     ```
+2. Open the `index.html` file in your web browser.
 
-2. **HTML Structure**: Your HTML file should have a container for the chart:
-    ```html
-    <div id="chart-container"></div>
-    ```
+## Usage
 
-3. **JavaScript File**: Include the `navigationChart.js` script in your HTML file:
-    ```html
-    <script src='navigationChart.js'></script>
-    ```
+1. Ensure your Excel file (`timelineTask.xlsx`) is in the same directory as `index.html`.
+2. Open `index.html` in a web browser to view the navigation chart.
 
-## JavaScript Functions
+## Files
 
-- **`fetchAndParseExcel(url)`**: Fetches and parses an Excel file from the given URL, converting it into JSON format.
-- **`adjustOverlappingPoints(data, offset)`**: Adjusts overlapping points by shifting their positions.
-- **`initializeData()`**: Fetches data from the Excel file, adjusts overlapping points, and then plots the scatter plot.
-- **`plotScatterPlot(dataset)`**: Creates and renders a scatter plot using the data provided.
+- `index.html`: Main HTML file.
+- `navigationChart.js`: JavaScript file containing the D3 chart logic.
+- `timelineTask.xlsx`: Excel file containing the data.
 
-## How to Use
+## Data Format
 
-1. **Update Excel File URL**: Modify the `excelUrl` variable in `navigationChart.js` to point to your Excel file.
-    ```javascript
-    const excelUrl = 'timelineTask.xlsx';
-    ```
-
-2. **Data Format**: Ensure your Excel file has the following columns: `x`, `y`, `Timeline`, `Title for resource`, `href`, and `type`.
-
-3. **Run the Project**: Open the HTML file in a web browser. The chart should render and display the data from the Excel file.
+The Excel file should have the following columns:
+- `Timeline`
+- `Title for resource`
+- `href`
+- `type`
+- `x`
+- `y`
